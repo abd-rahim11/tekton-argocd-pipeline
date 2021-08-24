@@ -1,0 +1,116 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: tekton-argocd-example-build-tt
+spec:
+  params: 
+  - name: git-app-repo-url
+  #- name: git-app-repo-name
+  - name: git-app-repo-revision
+  resourcetemplates:
+  - apiVersion: tekton.dev/v1alpha1
+    kind: PipelineResource
+    metadata:
+      name: git-app-source-$(uid)
+      namespace: tekton-argocd-example
+      labels:
+        pipeline: tekton
+        deploy: argocd
+    spec:
+      params:
+      - name: url
+        value: $(tt.params.git-app-repo-url)
+      - name: revision
+        value: $(tt.params.git-app-repo-revision)
+      #- name: git-app-repo-name
+      #  value: $(tt.params.git-app-repo-name)
+      type: git
+  - apiVersion: tekton.dev/v1alpha1
+    kind: PipelineResource
+    metadata:
+      name: docker-target-$(uid)
+      namespace: tekton-argocd-example
+      labels:
+        pipeline: tekton
+        deploy: argocd
+    spec:
+      params:
+      - name: url
+        # Replace <docker_registry_name> with your docker registry name 
+        value: 'https://index.docker.io/abderrahim' #'<docker_registry_name>'
+      type: image
+  - apiVersion: tekton.dev/v1alpha1
+    kind: PipelineRun
+    metadata:
+      generateName: tekton-argocd-build-deploy-pipeline-run-
+      namespace: tekton-argocd-example
+      labels:
+        pipeline: tekton
+        deploy: argocd
+    spec:
+      serviceAccountName: pipeline-sa
+      pipelineRef:
+        name: tekton-argocd-build-deploy-pipeline
+      resources:
+      - name: git-app-source
+        resourceRef:
+          name: git-app-source-$(uid)
+      - name: docker-target
+        resourceRef:
+          name: docker-target-$(uid)
+
+--- 
+
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: tekton-ci-pipelinebinding
+spec:
+  params:
+  - name: git-app-repo-url
+    value: $(body.repository.url)
+  - name: git-app-repo-revision
+    value: $(body.head_commit.id)
+
+
+
+
+---
+
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: tekton-argocd-github-el
+spec:
+  serviceAccountName: tekton-triggers-admin-sa
+  triggers:
+    - name: github-listener
+      interceptors: 
+      - github: 
+        eventTypes:
+        - push
+      - cel: 
+          filter: "body.ref == refs/heads/master"    
+      bindings:
+        - ref: tekton-argocd-example-build-git-tb
+      template:
+        name: tekton-argocd-example-build-tt
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-resource-el
+  namespace: ingress-el
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+  -  http:
+      paths:
+      - path: /
+        backend:
+          serviceName: el-tekton-argocd-github-el # REPLACE WITH YOUR TEKTON SERVICE (Find the service name expose by the Eventlistener service)
+          servicePort: 8080
+             
