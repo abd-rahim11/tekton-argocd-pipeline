@@ -64,7 +64,7 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
-  name: tekton-ci-pipelinebinding
+  name: tekton-argocd-example-build-tb
 spec:
   params:
   - name: git-app-repo-url
@@ -95,7 +95,7 @@ spec:
       - cel: 
           filter: "body.ref == refs/heads/master"    
       bindings:
-        - ref: tekton-argocd-example-build-git-tb
+        - ref: tekton-argocd-example-build-tb
       template:
         name: tekton-argocd-example-build-tt
 
