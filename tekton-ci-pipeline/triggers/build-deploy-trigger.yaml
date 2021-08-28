@@ -96,7 +96,10 @@ spec:
       bindings:
         - ref: tekton-argocd-example-build-tb
       template:
-        name: tekton-argocd-example-build-tt
+        ref: tekton-argocd-example-build-tt
+
+
+
 
 ---
 apiVersion: extensions/v1beta1
