@@ -87,6 +87,9 @@ spec:
     - name: github-listener
       interceptors: 
       - github: 
+        secretRef:
+          secretName: github-trigger-secret
+          secretKey: secretToken 
         eventTypes:
         - push
       - cel: 
