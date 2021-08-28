@@ -21,11 +21,11 @@ spec:
       - name: docker-target
         type: image
 
-  #stepTemplate:
-  #  name: Docker image details
-  #  envFrom:
-  #    - configMapRef:
-  #        name: argocd-env-configmap 
+  stepTemplate:
+    name: Docker image details
+    envFrom:
+      - configMapRef:
+          name: argocd-env-configmap 
 
   steps:
     - name: build-and-push
@@ -38,5 +38,13 @@ spec:
         - /kaniko/executor
       args:
         - --dockerfile=$(inputs.params.pathToDockerFile)
-        - --destination=$(outputs.resources.builtImage.url)
+        - --destination=$(outputs.resources.builtImage.url)/$(DOCKER_NAMESPACE)/$(DOCKER_IMAGE_NAME):$(DOCKER_TAG)
         - --context=$(inputs.params.pathToContext)
+      volumeMounts:
+        - name: varlibcontainers
+          mountPath: /var/lib/containers
+      securityContext:
+        privileged: true
+  volumes:
+    - name: varlibcontainers 
+      emptyDir: {}     
