@@ -86,14 +86,13 @@ spec:
   triggers:
     - name: github-listener
       interceptors: 
-      - github: 
-        secretRef:
-          secretName: github-trigger-secret
-          secretKey: secretToken 
-        eventTypes:
-        - push
-      - cel: 
-          filter: "body.ref == refs/heads/master"    
+        - github: 
+            secretRef:
+              secretName: github-trigger-secret
+              secretKey: secretToken 
+            eventTypes: ["push"]
+        - cel: 
+            filter: "body.ref == refs/heads/master"    
       bindings:
         - ref: tekton-argocd-example-build-tb
       template:
