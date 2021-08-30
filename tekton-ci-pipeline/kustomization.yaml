@@ -12,8 +12,8 @@ resources:
 - credentials/triggers-admin-role.yaml
 - credentials/build-task-cm.yaml
 - credentials/argocd-task-cm.yaml
-#- PipelineRessources/docker-resource.yaml
-#- PipelineRessources/git-app-resource.yaml
+- PipelineRessources/docker-resource.yaml
+- PipelineRessources/git-app-resource.yaml
 - tasks/build-task.yaml
 - tasks/argocd-task.yaml
 - pipelines/build-deploy-pipeline.yaml
