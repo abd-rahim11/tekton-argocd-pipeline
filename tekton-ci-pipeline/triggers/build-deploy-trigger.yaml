@@ -98,11 +98,9 @@ spec:
       template:
         ref: tekton-argocd-example-build-tt
 
-
-
-
+             
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress-resource-el
@@ -112,12 +110,11 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   rules:
-  -  http:
-      paths:
-      - path: /
-        backend:
-          serviceName: el-tekton-argocd-github-el # REPLACE WITH YOUR TEKTON SERVICE (Find the service name expose by the Eventlistener service)
-          servicePort: 8080
-             
-
-       
+    - http:
+        paths:
+          - path: /hooks
+            backend:
+              service:
+                name: el-tekton-argocd-github-el # REPLACE WITH YOUR TEKTON SERVICE (Find the service name expose by the Eventlistener service)
+                port:
+                  number: 8080       
