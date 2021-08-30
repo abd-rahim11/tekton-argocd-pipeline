@@ -68,9 +68,9 @@ metadata:
 spec:
   params:
   - name: git-app-repo-url
-    default: $(body.repository.url)
+    value: $(body.repository.url)
   - name: git-app-repo-revision
-    default: $(body.head_commit.id)
+    value: $(body.head_commit.id)
 
 
 
