@@ -3,23 +3,23 @@ kind: Task
 metadata:
   name: build-docker-image
 spec:
-  inputs:
-    resources:
+  resources :
+    inputs:
       - name: git-app-source
         type: git
-    params:
-      - name: pathToDockerFile
-        type: string
-        description: The path to the dockerfile to build
-        default: /workspace/git-app-source/Dockerfile
-      - name: pathToContext
-        type: string
-        description: The build context used by Kaniko
-        default: /workspace/git-app-source
-  outputs:
-    resources:
+    outputs:
       - name: docker-target
-        type: image
+        type: image    
+  params:
+    - name: pathToDockerFile
+      type: string
+      description: The path to the dockerfile to build
+      default: /workspace/git-app-source/Dockerfile
+    - name: pathToContext
+      type: string
+      description: The build context used by Kaniko
+      default: /workspace/git-app-source
+
 
   stepTemplate:
     name: Docker image details
@@ -37,9 +37,9 @@ spec:
       command:
         - /kaniko/executor
       args:
-        - --dockerfile=$(inputs.params.pathToDockerFile)
-        - --destination=$(outputs.resources.docker-target.url)/$(DOCKER_IMAGE_NAME):$(DOCKER_TAG)
-        - --context=$(inputs.params.pathToContext)
+        - --dockerfile=$(params.pathToDockerFile)
+        - --destination=$(resources.outputs.docker-target.url)/$(DOCKER_IMAGE_NAME):$(DOCKER_TAG)
+        - --context=$(params.pathToContext)
       volumeMounts:
         - name: varlibcontainers
           mountPath: /var/lib/containers
