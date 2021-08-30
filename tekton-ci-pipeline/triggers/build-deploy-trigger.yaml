@@ -113,6 +113,7 @@ spec:
     - http:
         paths:
           - path: /hooks
+            pathType: Exact
             backend:
               service:
                 name: el-tekton-argocd-github-el # REPLACE WITH YOUR TEKTON SERVICE (Find the service name expose by the Eventlistener service)
